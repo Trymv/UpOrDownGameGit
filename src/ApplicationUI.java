@@ -14,6 +14,7 @@ public class ApplicationUI {
     private PlayerList playerList;
     private Scanner reader;
     private Event event;
+    private int userAnswer;
 
     /**
      * The menu of the game witch will be displayed when there is a choice to be made.
@@ -57,6 +58,7 @@ public class ApplicationUI {
         this.cardDeck = new CardDeck();
         this.playerList = new PlayerList();
         this.event = new Event(playerList);
+        this.userAnswer = 1;
     }
 
     /**
@@ -380,41 +382,26 @@ public class ApplicationUI {
     /**
      * Do a round where you get 2 chances to guess the card.
      * If incorrect on the first guess you get another guess with a little help.
+     * Depending on events you can either get or loose a guess chance.
      */
     private void doAGameRound(String player) {
         Card cardToBeGuessed = cardDeck.getRandomCard();
         String eventText = event.doRandomEvent(playerList.getPlayerWithName(player));
         System.out.println(eventText);
 
-        System.out.println(player + " guess what card between 1 and 13:");
-        int userAnswer = readNextInt();
-        userAnswer = checkUserAnswer(userAnswer);
-
         if(!cardDeck.deckIsEmpty()) {
-            if (userAnswer == cardToBeGuessed.getNumber()) {
-                System.out.println(player + " got it on first try!\n" + "The card was: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
-                cardDeck.removeCardFromDeck(cardToBeGuessed.getName(), cardToBeGuessed.getCategory());
-                playerList.changePlayerScore(player, 3);
+            System.out.println(player + " guess what card between 1 and 13:");
+            boolean wrongCard = doAGuess(1, player, cardToBeGuessed);
+
+            if (!eventText.equals("Bad luck! Only one guess for " + player + ".") && wrongCard) {
+                wrongCard = doAGuess(2, player, cardToBeGuessed);
             }
-            else {
-                if (userAnswer < cardToBeGuessed.getNumber()) {
-                    System.out.println("Up: ");
-                }
-                else {
-                    System.out.println("Down: ");
-                }
-                userAnswer = readNextInt();
-                userAnswer = checkUserAnswer(userAnswer);
-                if (userAnswer == cardToBeGuessed.getNumber()) {
-                    System.out.println(player + " got it!\n" + "The card was: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory()+ "\n");
-                    cardDeck.removeCardFromDeck(cardToBeGuessed.getName(), cardToBeGuessed.getCategory());
-                    playerList.changePlayerScore(player, 1);
-                }
-                else {
-                    System.out.println(player + " didn't get it!\n" + "The card is: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
-                    playerList.changePlayerScore(player, -1);
-                }
+            if (eventText.equals(player + " got an extra guess!") && wrongCard) {
+                System.out.println(player + " got one extra guess from the event!");
+                wrongCard = doAGuess(3, player, cardToBeGuessed);
             }
+            //Will only do something if the user has guessed the wrong card on the last try.
+            wrongCardGuess(player, cardToBeGuessed, wrongCard);
         }
         else {
             System.out.println("The deck is empty!");
@@ -422,18 +409,110 @@ public class ApplicationUI {
     }
 
     /**
+     * This method has the responsible to do the card guessing and tell the user
+     * if they have to go up or down and print out text if they get the correct card.
+     * If the user guess the wrong card this method will return true.
+     * @param guessTryNr the guess attempt of the user is on.
+     * @param player the player to do a guess.
+     * @param cardToBeGuessed a unknown card to be guessed by the user.
+     * @return true if the user guess the wrong card.
+     */
+    private boolean doAGuess(int guessTryNr, String player, Card cardToBeGuessed) {
+        boolean wrongCard = false;
+
+            switch (guessTryNr) {
+
+                case 1: //Guess nr one.
+                    this.userAnswer = readNextInt();
+                    this.userAnswer = checkUserAnswer();
+
+                    if (this.userAnswer == cardToBeGuessed.getNumber()) {
+                        System.out.println(player + " got it on first try!\n" + "The card was: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
+                        cardDeck.removeCardFromDeck(cardToBeGuessed.getName(), cardToBeGuessed.getCategory());
+                        playerList.changePlayerScore(player, 3);
+                    } else {
+                        wrongCard = true;
+                    }
+                    break;
+
+                case 2: //Guess nr two.
+                    upOrDown(this.userAnswer, cardToBeGuessed);
+                    userAnswer = readNextInt();
+                    userAnswer = checkUserAnswer();
+
+                    if (this.userAnswer == cardToBeGuessed.getNumber()) {
+                        System.out.println(player + " got it!\n" + "The card was: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
+                        cardDeck.removeCardFromDeck(cardToBeGuessed.getName(), cardToBeGuessed.getCategory());
+                        playerList.changePlayerScore(player, 1);
+                    } else {
+                        wrongCard = true;
+                    }
+                    break;
+
+                case 3: //Guess nr three.
+                    upOrDown(this.userAnswer, cardToBeGuessed);
+                    this.userAnswer = readNextInt();
+                    this.userAnswer = checkUserAnswer();
+
+                    if (this.userAnswer == cardToBeGuessed.getNumber()) {
+                        System.out.println(player + " got it on the third try!\n" + "The card was: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
+                        cardDeck.removeCardFromDeck(cardToBeGuessed.getName(), cardToBeGuessed.getCategory());
+                        playerList.changePlayerScore(player, 1);
+                    } else {
+                        wrongCard = true;
+                    }
+                    break;
+
+                default:
+            }
+        return wrongCard;
+    }
+
+    /**
+     * This method will tell if the card is higher or lower than the user answer.
+     * @param userAnswer the guess from the user.
+     * @param cardToBeGuessed the card to be guessed.
+     * @throws IllegalArgumentException if cardToBeGuessed is set to null.
+     */
+    private void upOrDown(int userAnswer, Card cardToBeGuessed) {
+        if (cardToBeGuessed != null) {
+            if (userAnswer < cardToBeGuessed.getNumber()) {
+                System.out.println("Up: ");
+            } else {
+                System.out.println("Down: ");
+            }
+        }
+        else {
+            throw new IllegalArgumentException("cardToBeGuessed was set to null in method upOrDown!");
+        }
+    }
+
+    /**
+     * Prints out message if the user guessed the wrong card
+     * and gives the user -1 in score.
+     * @param player name of the player.
+     * @param cardToBeGuessed the card to be guessed.
+     * @param wrongCard send in true if the user guessed the wrong card.
+     */
+    private void wrongCardGuess(String player, Card cardToBeGuessed, boolean wrongCard) {
+        if (wrongCard) {
+            System.out.println(player + " didn't get it!\n" + "The card is: " + cardToBeGuessed.getNumber() + " of " + cardToBeGuessed.getCategory() + "\n");
+            playerList.changePlayerScore(player, -1);
+        }
+    }
+
+    /**
      * Checks if user input is in range of 1-13.
      * If value is under 1 it will be set to 1. If above it will be set to 13.
-     * @param userAnswer the value to be checked.
      * @return same value as parameter if value is valid (1-13). If not it will be set to either 1 or 13.
      */
-    private int checkUserAnswer(int userAnswer) {
+    private int checkUserAnswer() {
         int returnValue = userAnswer;
-        if(userAnswer <= 0) {
+        if(this.userAnswer <= 0) {
             returnValue = 1;
             System.out.println("The value was too low. Value has to be between 1-13. So it was set to 1.");
         }
-        else if(userAnswer > 13) {
+        else if(this.userAnswer > 13) {
             returnValue = 13;
             System.out.println("The value was too high. Value has to be between 1-13. So it was set to 13.");
         }

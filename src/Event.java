@@ -79,45 +79,19 @@ public class Event {
         String eventInfo = "No events today.";
         if (rand.nextInt(100)+1 <= chanceForEventToIncur && isEventOn()) {
             //The number in this "randomEvent" has to be the same as number of cases.
-            int randomEvent = rand.nextInt(5)+1;
+            int randomEvent = rand.nextInt(3)+1;
 
             switch (randomEvent) {
-                case 1: //Positive event with a rare chance of being very bad.
-                    if(rand.nextInt(100)+1 <= 98) {
-                        pointEvent(playerToBeAffected, 1);
-                        eventInfo = playerToBeAffected.getName() + " feels just a little bit better. (+1 point)";
-                    }
-                    else {
-                        //A 2% chance to instantly set punishment to 1 if this case happens.
-                        playerToBeAffected.setPunishment(1);
-                        eventInfo = playerToBeAffected.getName() + " this is an unlucky day for you! (+1 punishment)";
-                    }
+                case 1: //Positive event witch will give points to the player.
+                    eventInfo = positivePointEvent(playerToBeAffected);
                     break;
 
-                case 2: //Negative event
-                    pointEvent(playerToBeAffected, -2);
-                    eventInfo = playerToBeAffected.getName() + " need some more to drink. (-2 points)";
+                case 2: //Negative event witch will subtract points from the player.
+                    eventInfo = negativePointEvent(playerToBeAffected);
                     break;
 
-                case 3: //Positive event
-                    pointEvent(playerToBeAffected, 2);
-                    eventInfo = playerToBeAffected.getName() + " has to slow down! (+2 point)";
-                    break;
-
-                case 4: //Negative event
-                    pointEvent(playerToBeAffected, -3);
-                    eventInfo = playerToBeAffected.getName() + " need more! (-3 points)";
-                    break;
-
-                case 5: //Natural event
-                    if(rand.nextInt(100)+1 <= 50) {
-                        playerToBeAffected.doubleScore();
-                        eventInfo = playerToBeAffected.getName() + " got some new wisdom! (Points double)";
-                    }
-                    else {
-                        playerList.doubleScoreOfEveryPlayer();
-                        eventInfo = playerToBeAffected.getName() + " shares his wisdom! (Points of every player double's)";
-                    }
+                case 3: //Could be good and bad.
+                    eventInfo = oneOrThreeGuesses(playerToBeAffected);
                     break;
 
                 default:
@@ -133,22 +107,111 @@ public class Event {
 
     //***** Positive Events *****
 
+    /**
+     * Does a roll and affect the player with a positive point score.
+     * The roll will result in different outcomes.
+     * @param playerToBeAffected the player to be affected.
+     * @return a string with result information.
+     */
+    private String positivePointEvent(Player playerToBeAffected) {
+        int randomNumber = rand.nextInt(100) + 1;
+        String eventInfo = "Error";
 
+        if (randomNumber <= 50) {
+            playerToBeAffected.setScore(1);
+            eventInfo = playerToBeAffected.getName() + " feels just a little bit better. (+1 point)";
+        }
+        else if(randomNumber <= 80) {
+            playerToBeAffected.setScore(2);
+            eventInfo = playerToBeAffected.getName() + " has to slow down! (+2 points)";
+        }
+        else if(randomNumber <= 85) {
+            playerToBeAffected.setScore(3);
+            eventInfo = playerToBeAffected.getName() + " dude you are wasted... (+3 points)";
+        }
+        else if (randomNumber <= 100) { //Natural event witch will either double the points of the affected player or to everyone.
+            eventInfo = doublePointEvent(playerToBeAffected);
+        }
+        return eventInfo;
+    }
 
     //***** End of Positive Events *****
-    //***** Start of Natural Events *****
+    //***** Natural Events *****
 
     /**
-     * Give or reduce the player score.
-     * @param scoreChange the change in score. Can be both + and -.
+     * Does a roll and affect either the player or every player in the game by doubling points.
+     * The roll will result in different outcomes.
+     * @param playerToBeAffected the player to be affected.
+     * @return a string with result information.
      */
-    private void pointEvent(Player playerToBeAffected, float scoreChange) {
-        playerToBeAffected.setScore(scoreChange);
+    private String doublePointEvent(Player playerToBeAffected) {
+        int randomNumber = rand.nextInt(100)+1;
+        String eventInfo;
+
+        if(randomNumber <= 50) {
+            playerToBeAffected.doubleScore();
+            eventInfo = playerToBeAffected.getName() + " got some new wisdom! (Points double)";
+        }
+        else {
+            playerList.doubleScoreOfEveryPlayer();
+            eventInfo = playerToBeAffected.getName() + " shares his wisdom! (Points of every player double's)";
+        }
+        return eventInfo;
+    }
+
+    /**
+     * Write and return the event text depending on a roll.
+     * This is natural since it could be both positive and negative.
+     * @param playerToBeAffected the player to be affected.
+     * @return a string with result information.
+     */
+    private String oneOrThreeGuesses(Player playerToBeAffected) {
+        int randomNumber = rand.nextInt(100)+1;
+        String eventInfo;
+
+        if(randomNumber <=60) {
+            //If this text get changed the oneOrThreeGuesses wont work except if it's also changed in the UI!
+            eventInfo = "Bad luck! Only one guess for " + playerToBeAffected.getName() + ".";
+        }
+        else {
+            //If this text get changed the oneOrThreeGuesses wont work except if it's also changed in the UI!
+            eventInfo = playerToBeAffected.getName() + " got an extra guess!";
+        }
+        return eventInfo;
     }
 
     //***** End of Natural Events *****
-    //***** Start of Negative Events *****
+    //***** Negative Events *****
+
+    /**
+     * Does a roll and affect the player with a negative point score.
+     * The roll will result in different outcomes.
+     * @param playerToBeAffected the player to be affected.
+     * @return a string with result information.
+     */
+    private String negativePointEvent(Player playerToBeAffected) {
+        int randomNumber = rand.nextInt(100) + 1;
+        String eventInfo = "Error";
+
+        if (randomNumber <= 40) {
+            playerToBeAffected.setScore(-1);
+            eventInfo = playerToBeAffected.getName() + " just need a little more to drink. (-1 point)";
+        }
+        else if(randomNumber <= 75) {
+            playerToBeAffected.setScore(-2);
+            eventInfo = playerToBeAffected.getName() + " need some more to drink. (-2 points";
+        }
+        else if(randomNumber <= 98) {
+            playerToBeAffected.setScore(-3);
+            eventInfo = playerToBeAffected.getName() + " need more! (-3 points)";
+        }
+        else if(randomNumber <= 100) {
+            //A 2% chance to instantly set punishment to 1 if this case happens.
+            playerToBeAffected.setPunishment(1);
+            eventInfo = playerToBeAffected.getName() + " this is an unlucky day for you! (+1 punishment)";
+        }
+        return eventInfo;
+    }
 
     //***** End of Negative Events *****
 }
-
