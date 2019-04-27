@@ -121,7 +121,7 @@ public class Event {
         String eventInfo = "No events today.";
         if (rand.nextInt(100)+1 <= chanceForEventToIncur && isEventOn()) {
             //The number in this "randomEvent" has to be the same as number of cases.
-            int randomEvent = rand.nextInt(1)+4;
+            int randomEvent = rand.nextInt(4)+1;
 
             switch (randomEvent) {
                 case 1: //Positive event witch will give points to the player.
