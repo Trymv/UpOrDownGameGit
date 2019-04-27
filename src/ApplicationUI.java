@@ -7,7 +7,7 @@ import java.util.Scanner;
  * and receiving input from the user.
  *
  * @author TrymV
- * @version 0.1
+ * @version 0.2
  */
 public class ApplicationUI {
     private CardDeck cardDeck;
@@ -388,6 +388,8 @@ public class ApplicationUI {
         Card cardToBeGuessed = cardDeck.getRandomCard();
         String eventText = event.doRandomEvent(playerList.getPlayerWithName(player));
         System.out.println(eventText);
+        //doRuleEvent will only go if rule has been rolled as the event.
+        doRuleEvent(player);
 
         if(!cardDeck.deckIsEmpty()) {
             System.out.println(player + " guess what card between 1 and 13:");
@@ -517,6 +519,22 @@ public class ApplicationUI {
             System.out.println("The value was too high. Value has to be between 1-13. So it was set to 13.");
         }
         return returnValue;
+    }
+
+    /**
+     * Lets the affected player add a rule with name and description
+     * if rule has been rolled in Event.
+     * @param player name of the affected player as a String.
+     */
+    private void doRuleEvent(String player) {
+        if(event.hasRuleBeenRolled()) {
+            System.out.println("\n" + player + " please type name of the rule: ");
+            String ruleName = readNextLine();
+            System.out.println(player + " please type a small description of the rule: ");
+            String ruleDescription = readNextLine();
+            event.newRule(ruleName, ruleDescription);
+            System.out.println("The rule has been added! The current rules are:" + event.listRules());
+        }
     }
 
     /**

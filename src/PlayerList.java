@@ -32,12 +32,14 @@ public class PlayerList {
     public void removePlayer(String playerToRemove) {
         Player playerToBeRemoved = null;
 
-        for(Player player:listOfPlayers) {
-            if(player.getName().equals(playerToRemove)) {
+        for (Player player : listOfPlayers) {
+            if (player.getName().equals(playerToRemove)) {
                 playerToBeRemoved = player;
             }
         }
-        listOfPlayers.remove(playerToBeRemoved);
+        if (playerToBeRemoved != null) {
+            listOfPlayers.remove(playerToBeRemoved);
+        }
     }
 
     /**

@@ -33,24 +33,24 @@ public class Card {
     }
 
     /**
-     * Return the name of the card
-     * @return the name of the card
+     * Return name of the card
+     * @return name of the card
      */
     public String getName() {
         return this.name;
     }
 
     /**
-     * Return the category of the card
-     * @return the category of the card
+     * Return category of the card
+     * @return category of the card
      */
     public String getCategory() {
         return this.category;
     }
 
     /**
-     * Return the number of the card
-     * @return the number of the card
+     * Return number of the card
+     * @return number of the card
      */
     public int getNumber() {
         return this.number;

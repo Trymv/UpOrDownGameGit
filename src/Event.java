@@ -4,12 +4,17 @@ import java.util.Random;
  * This class takes inn a player and the full player list.
  * If an event incur either the player or every player will be affected with either loosing points or gaining points.
  * Some events could also do special things like making a rule.
+ *
+ * @author TrymV
+ * @version 0.2
  */
 public class Event {
     private boolean eventIsOn;
     private PlayerList playerList;
+    private RuleList ruleList;
     private Random rand;
     private int chanceForEventToIncur;
+    private boolean ruleHasBeenRolled;
 
     /**
      * Constructor for objects of the class Event.
@@ -24,6 +29,8 @@ public class Event {
             this.eventIsOn = true;
             this.rand = new Random();
             this.chanceForEventToIncur = 50;
+            this.ruleList = new RuleList();
+            this.ruleHasBeenRolled = false;
         }
 
     /**
@@ -41,6 +48,41 @@ public class Event {
      */
     public void setEventState(boolean state) {
         eventIsOn = state;
+    }
+
+    /**
+     * Checks if rule has been rolled and return true if it has.
+     * @return true if rule has been rolled.
+     */
+    public boolean hasRuleBeenRolled() {
+        boolean beenRolled = false;
+        if(ruleHasBeenRolled) {
+            beenRolled = true;
+        }
+        return beenRolled;
+    }
+
+    /**
+     * Adds a new rule to the ruleList.
+     * @param ruleName name of the rule.
+     * @param ruleDescription a description of the rule.
+     */
+    public void newRule(String ruleName, String ruleDescription) {
+        if(ruleName != null || ruleDescription != null) {
+            ruleList.addRule(new Rule(ruleName, ruleDescription));
+            ruleHasBeenRolled = false;
+        }
+        else {
+            throw new IllegalArgumentException("ruleName or ruleDescription was set to null in newRule.");
+        }
+    }
+
+    /**
+     * List all rules in the ruleList.
+     * @return name and description of all rules as a String.
+     */
+    public String listRules() {
+        return ruleList.listAllRuleDescriptions();
     }
 
     /**
@@ -79,7 +121,7 @@ public class Event {
         String eventInfo = "No events today.";
         if (rand.nextInt(100)+1 <= chanceForEventToIncur && isEventOn()) {
             //The number in this "randomEvent" has to be the same as number of cases.
-            int randomEvent = rand.nextInt(3)+1;
+            int randomEvent = rand.nextInt(1)+4;
 
             switch (randomEvent) {
                 case 1: //Positive event witch will give points to the player.
@@ -92,6 +134,10 @@ public class Event {
 
                 case 3: //Could be good and bad.
                     eventInfo = oneOrThreeGuesses(playerToBeAffected);
+                    break;
+
+                case 4:
+                    eventInfo = ruleEvent(playerToBeAffected);
                     break;
 
                 default:
@@ -117,17 +163,17 @@ public class Event {
         int randomNumber = rand.nextInt(100) + 1;
         String eventInfo = "Error";
 
-        if (randomNumber <= 50) {
+        if (randomNumber <= 60) {
             playerToBeAffected.setScore(1);
             eventInfo = playerToBeAffected.getName() + " feels just a little bit better. (+1 point)";
         }
-        else if(randomNumber <= 80) {
+        else if(randomNumber <= 75) {
             playerToBeAffected.setScore(2);
             eventInfo = playerToBeAffected.getName() + " has to slow down! (+2 points)";
         }
-        else if(randomNumber <= 85) {
+        else if(randomNumber <= 80) {
             playerToBeAffected.setScore(3);
-            eventInfo = playerToBeAffected.getName() + " dude you are wasted... (+3 points)";
+            eventInfo = playerToBeAffected.getName() + " you are wasted... (+3 points)";
         }
         else if (randomNumber <= 100) { //Natural event witch will either double the points of the affected player or to everyone.
             eventInfo = doublePointEvent(playerToBeAffected);
@@ -180,6 +226,16 @@ public class Event {
         return eventInfo;
     }
 
+    /**
+     * Changes ruleHasBeenRolled to true and return a eventInfo string.
+     * @param playerToBeAffected the player to be affected.
+     * @return a string with result information.
+     */
+    private String ruleEvent(Player playerToBeAffected) {
+        this.ruleHasBeenRolled = true;
+        return playerToBeAffected.getName() + " triggered the rule event!";
+    }
+
     //***** End of Natural Events *****
     //***** Negative Events *****
 
@@ -193,13 +249,13 @@ public class Event {
         int randomNumber = rand.nextInt(100) + 1;
         String eventInfo = "Error";
 
-        if (randomNumber <= 40) {
+        if (randomNumber <= 55) {
             playerToBeAffected.setScore(-1);
             eventInfo = playerToBeAffected.getName() + " just need a little more to drink. (-1 point)";
         }
-        else if(randomNumber <= 75) {
+        else if(randomNumber <= 85) {
             playerToBeAffected.setScore(-2);
-            eventInfo = playerToBeAffected.getName() + " need some more to drink. (-2 points";
+            eventInfo = playerToBeAffected.getName() + " need some more to drink. (-2 points)";
         }
         else if(randomNumber <= 98) {
             playerToBeAffected.setScore(-3);
