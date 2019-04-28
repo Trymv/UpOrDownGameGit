@@ -6,7 +6,7 @@ import java.util.Random;
  * Some events could also do special things like making a rule.
  *
  * @author TrymV
- * @version 0.2
+ * @version 0.3
  */
 public class Event {
     private boolean eventIsOn;
@@ -103,6 +103,14 @@ public class Event {
     }
 
     /**
+     * Returns the size of rule list.
+     * @return the size of rule list.
+     */
+    public int getRuleListSize() {
+        return ruleList.getRuleListSize();
+    }
+
+    /**
      * Returns the chance for event to incur.
      * 100 is 100%, 50 is 50%, 1 is 1% and so on.
      * @return the chance for event to incur.
@@ -121,9 +129,8 @@ public class Event {
         String eventInfo = "No events today.";
         if (rand.nextInt(100)+1 <= chanceForEventToIncur && isEventOn()) {
             //The number in this "randomEvent" has to be the same as number of cases.
-            int randomEvent = rand.nextInt(4)+1;
 
-            switch (randomEvent) {
+            switch (eventRoller()) {
                 case 1: //Positive event witch will give points to the player.
                     eventInfo = positivePointEvent(playerToBeAffected);
                     break;
@@ -136,8 +143,12 @@ public class Event {
                     eventInfo = oneOrThreeGuesses(playerToBeAffected);
                     break;
 
-                case 4:
+                case 4: //Rule event.
                     eventInfo = ruleEvent(playerToBeAffected);
+                    break;
+
+                case 5: //Reverse points event.
+                    eventInfo = reversePointsEvent(playerToBeAffected);
                     break;
 
                 default:
@@ -151,7 +162,32 @@ public class Event {
         return eventInfo;
     }
 
-    //***** Positive Events *****
+    /**
+     * Does a roll and return a value from 1-the amount of cases in doRandomEvent.
+     * @return a value from 1-doRandomEvent amount of cases.
+     */
+    private int eventRoller() {
+        int eventRoll = rand.nextInt(100)+1;
+
+        if(eventRoll <= 25) { //+Points
+            eventRoll = 1;
+        }
+        else if(eventRoll <= 55) { //-Points
+            eventRoll = 2;
+        }
+        else if(eventRoll <= 85) { //OneOrThreeGuesses
+            eventRoll = 3;
+        }
+        else if(eventRoll <= 96) { //Rule
+            eventRoll = 4;
+        }
+        else if(eventRoll <= 100) { //Points reverse
+            eventRoll = 5;
+        }
+        return eventRoll;
+    }
+
+    //***** Events *****
 
     /**
      * Does a roll and affect the player with a positive point score.
@@ -180,9 +216,6 @@ public class Event {
         }
         return eventInfo;
     }
-
-    //***** End of Positive Events *****
-    //***** Natural Events *****
 
     /**
      * Does a roll and affect either the player or every player in the game by doubling points.
@@ -236,8 +269,15 @@ public class Event {
         return playerToBeAffected.getName() + " triggered the rule event!";
     }
 
-    //***** End of Natural Events *****
-    //***** Negative Events *****
+    /**
+     * Reverse the points of every player.
+     * @param playerToBeAffected the player to trigger the event.
+     * @return a string with result information.
+     */
+    private String reversePointsEvent(Player playerToBeAffected) {
+        playerList.reverseAllPoints();
+        return "There is a change in the air! " + playerToBeAffected.getName() + " triggered the reverse point event.";
+    }
 
     /**
      * Does a roll and affect the player with a negative point score.
@@ -269,5 +309,5 @@ public class Event {
         return eventInfo;
     }
 
-    //***** End of Negative Events *****
+    //***** End of Events *****
 }

@@ -15,7 +15,7 @@ public class RuleList {
      */
     public RuleList() {
         this.listOfRules = new ArrayList<>();
-        this.maxNumberOfRules = 3;
+        this.maxNumberOfRules = 2;
     }
 
     /**
@@ -91,5 +91,13 @@ public class RuleList {
             ruleDescriptions.append("\nRule").append(listOfRules.indexOf(rule)+1).append(": ").append(rule.getName()).append("\n").append(rule.getDescription()).append("\n");
         }
         return ruleDescriptions.toString();
+    }
+
+    /**
+     * Return the size of rule list.
+     * @return the size of rule list.
+     */
+    public int getRuleListSize() {
+        return listOfRules.size();
     }
 }

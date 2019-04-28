@@ -96,6 +96,13 @@ public class Player {
     }
 
     /**
+     * Set the player score to 0.
+     */
+    public void resetScore() {
+        this.score = 0;
+    }
+
+    /**
      * Sets the punishment to a value.
      * @param punishmentChange the value you want to set punishment to.
      * @throws IllegalArgumentException if value is set to a negative number.
@@ -107,5 +114,13 @@ public class Player {
         else {
             throw new IllegalArgumentException("Can't set punishment to a negative number.");
         }
+    }
+
+    /**
+     * Reverse the score of the player.
+     * -1 --> +1, +10 --> -10, -7 --> +7
+     */
+    public void reversePoints() {
+        this.score = this.score*-1;
     }
 }

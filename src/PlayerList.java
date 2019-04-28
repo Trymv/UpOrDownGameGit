@@ -191,4 +191,23 @@ public class PlayerList {
             player.doubleScore();
         }
     }
+
+    /**
+     * Reset score and punishment of every player in the list.
+     */
+    public void resetAllPlayerStats() {
+        for(Player player:listOfPlayers) {
+            player.resetPunishment();
+            player.resetScore();
+        }
+    }
+
+    /**
+     * Reverse the score of every player in the list.
+     */
+    public void reverseAllPoints() {
+        for(Player player:listOfPlayers) {
+            player.reversePoints();
+        }
+    }
 }

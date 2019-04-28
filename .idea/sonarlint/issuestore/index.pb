@@ -11,3 +11,9 @@ A
 src/Card.java,0\a\0af8bdaba23cc9750675911d9885d7cff10a404d
 =
 src/Rule.java,5\b\5b93d28d55f87d93fa12060edba661c6b8258135
+A
+src/CardDeck.java,8\f\8f1e6a4eca57ceae4ac1b970166533b10f3c699c
+?
+src/Player.java,0\a\0af1b8fac2070a86d1131ba15e93dd7b384d4b84
+C
+src/PlayerList.java,a\c\ac8b63f6da420f2c7a4820570f5272324edad8a9

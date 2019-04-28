@@ -7,7 +7,7 @@ import java.util.Scanner;
  * and receiving input from the user.
  *
  * @author TrymV
- * @version 0.2
+ * @version 0.3
  */
 public class ApplicationUI {
     private CardDeck cardDeck;
@@ -20,13 +20,12 @@ public class ApplicationUI {
      * The menu of the game witch will be displayed when there is a choice to be made.
      */
     private String[] gameMenu = {
-            "1. Do a round",
+            "1. Start game",
             "2. List cards in deck",
             "3. ShowStats",
             "4. List all players",
-            "5. Restart game",
-            "6. Settings",
-            "7. Help",
+            "5. Settings",
+            "6. Help",
     };
 
     /**
@@ -37,7 +36,9 @@ public class ApplicationUI {
             "1. Add player",
             "2. Remove player",
             "3. Event settings",
-            "4. Back to main menu",
+            "4. Reset card deck",
+            "5. Reset player stats",
+            "6. Back to main menu",
     };
 
     /**
@@ -79,7 +80,7 @@ public class ApplicationUI {
                     int menuSelection = this.showMenu("gameMenu");
                     switch (menuSelection) {
 
-                        case 1: //Do a round
+                        case 1: //Do 1-5 rounds
                             System.out.println("How many rounds do you witch to play through? (1-5)");
                             playGame(readNextInt());
                             break;
@@ -96,19 +97,15 @@ public class ApplicationUI {
                             listAllPlayers();
                             break;
 
-                        case 5: //Restart game
-                            resetGame();
-                            break;
-
-                        case 6: //Setting menu
+                        case 5: //Setting menu
                             settings();
                             break;
 
-                        case 7: //Help
-                            System.out.println(playerList.listAllPlayersWithPunishment());
+                        case 6: //Help
+                            System.out.println(gameHelp());
                             break;
 
-                        case 8: //Exit game
+                        case 7: //Exit game
                             System.out.println("\nThank you for playing UpOrDown!\n");
                             quit = true;
                             break;
@@ -146,7 +143,15 @@ public class ApplicationUI {
                         eventSettings();
                         break;
 
-                    case 4: //Back to main menu
+                    case 4: //Reset card deck
+                        resetDeck();
+                        break;
+
+                    case 5: //Reset player score
+                        resetPlayerStats();
+                        break;
+
+                    case 6: //Back to main menu
                         backToMainMenu = true;
                         break;
 
@@ -341,6 +346,29 @@ public class ApplicationUI {
     }
 
     /**
+     * Prints out a small guide on how the game works.
+     * @return helString as a String with game information about how the game works.
+     */
+    private String gameHelp() {
+        return ("UpOrDown is a drinking game made from a simple card game with the goal to" +
+                " guess what card the player with the cards has with a little help after first guess with" +
+                " an up or down depending on the guess.\nIf you guessed the correct card the player with the cards" +
+                " has to drink, but if you don't get the card you have to drink.\nThe amount to drink depends on the players.")
+                +("\n")+("This game on the other hand will have have a few twists. First off the computer will handle the cards.\n" +
+                "Also there is something called events witch will include some special rules.\n" +
+                "Every player also has a score.\nIf you guess the correct card on first try you will get" +
+                " +3 score, if you get it on second you get +1 score, but if you don't get it you will get -1 score.\n" +
+                "The max score you can have is 15 and the min score you can get is -15.\n" +
+                "At the end of a round every player with -15 in score will get their score reset to 0 and" +
+                " will get 1 punishment score instead.\nAt the end of a game every player with punishment will be listed" +
+                " and has to do a punishment.\nThe punishment is up the the players. Example: Could be take a shot.\n")
+                +("\nEvent:\n")
+                +("Event will be rolled on before a player takes a guess. The chance for an event to happen depends on" +
+                " the chance you set in event settings, but will have a base chance of 50%.\n" +
+                "Events will do different things like adding or subtracting score.");
+    }
+
+    /**
      * Play through the game for each player in the player list.
      * Each player will do one game each.
      * You can for through more game depending on parameter.
@@ -354,6 +382,9 @@ public class ApplicationUI {
             amountOfGames = 5;
         }
         for (int games = 0; games < amountOfGames; games++) {
+            if(event.getRuleListSize() > 0) {
+                listAllRules();
+            }
             for (int i = 0; i < playerList.getListSize(); i++) {
                 String player = playerList.getPlayerNameWithIndex(i);
                 doAGameRound(player);
@@ -528,33 +559,62 @@ public class ApplicationUI {
      */
     private void doRuleEvent(String player) {
         if(event.hasRuleBeenRolled()) {
-            System.out.println("\n" + player + " please type name of the rule: ");
-            String ruleName = readNextLine();
             System.out.println(player + " please type a small description of the rule: ");
             String ruleDescription = readNextLine();
-            event.newRule(ruleName, ruleDescription);
-            System.out.println("The rule has been added! The current rules are:" + event.listRules());
+            event.newRule("", ruleDescription);
+            System.out.println("The rule has been added!");
+            listAllRules();
         }
     }
 
     /**
-     * This method will first empty the rest of the card deck before refilling it again.
-     * You will also be asked if you are sure you want to reset the game.
+     * List all the current rules.
      */
-    private void resetGame() {
+    private void listAllRules() {
+        System.out.println("\nThe current rules are:\n" + event.listRules());
+    }
+
+    /**
+     * This method will first empty the rest of the card deck before refilling it again.
+     * You will also be asked if you are sure you want to reset the deck.
+     */
+    private void resetDeck() {
         boolean waitingForAnswer = true;
 
         while(waitingForAnswer) {
-            System.out.println("Are you sure you want to reset the game? (yes or no)");
+            System.out.println("Are you sure you want to restock the deck? (yes or no)");
             String answer = readNextLine();
             if(answer.equals("yes")) {
-                System.out.println("Game has been restarted.");
+                System.out.println("Deck has been restocked.");
                 cardDeck.emptyDeck();
                 makeDeckWithCard();
                 waitingForAnswer = false;
             }
             else if(answer.equals("no")) {
-                System.out.println("Game will not be restarted.");
+                System.out.println("Deck will not be restocked.");
+                waitingForAnswer = false;
+            }
+        }
+    }
+
+    /**
+     * Will ask if the user want to reset all player stats.
+     * If yes both punishment and score will be reset.
+     * If no nothing will happen.
+     */
+    private void resetPlayerStats() {
+        boolean waitingForAnswer = true;
+
+        while(waitingForAnswer) {
+            System.out.println("Are you sure you want to reset all player stats? (yes or no)");
+            String answer = readNextLine();
+            if(answer.equals("yes")) {
+                System.out.println("All player stats has been reset.");
+                playerList.resetAllPlayerStats();
+                waitingForAnswer = false;
+            }
+            else if(answer.equals("no")) {
+                System.out.println("Player stats will not be reset.");
                 waitingForAnswer = false;
             }
         }
