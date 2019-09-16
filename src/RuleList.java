@@ -46,7 +46,7 @@ public class RuleList {
     }
 
     /**
-     * Removes the rule with index 0 witch is the oldest rule in the list.
+     * Removes the rule with index 0 which is the oldest rule in the list.
      */
     private void removeOldestRule() {
         Rule ruleToBeRemoved = null;

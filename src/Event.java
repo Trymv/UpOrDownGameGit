@@ -44,7 +44,7 @@ public class Event {
 
     /**
      * Send in true to turn event on or false to turn event off.
-     * @param state true og false depending on if you want event on or off.
+     * @param state true or false depending on if you want event on or off.
      */
     public void setEventState(boolean state) {
         eventIsOn = state;

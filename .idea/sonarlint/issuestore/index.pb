@@ -17,3 +17,7 @@ A
 src/Player.java,0\a\0af1b8fac2070a86d1131ba15e93dd7b384d4b84
 C
 src/PlayerList.java,a\c\ac8b63f6da420f2c7a4820570f5272324edad8a9
+D
+src/UpOrDownGUI.form,2\c\2c773244f5e1d07c50093b020db21afebb4bebb8
+D
+src/UpOrDownGUI.java,7\b\7b1c0a4297151e6ca1570f20b97078dd52f3ba07
